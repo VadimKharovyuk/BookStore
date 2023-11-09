@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-        //продавцы
+        //продавцы 333
         employees.add(new Employee(1,"Томашевський Женя",32));
         employees.add(new Employee(2,"Демидов Олександер",35));
         employees.add(new Employee(3,"Кравчук Олександер",31));
