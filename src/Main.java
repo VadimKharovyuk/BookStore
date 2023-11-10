@@ -1,6 +1,7 @@
 import Model.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class Main {
@@ -12,15 +13,15 @@ public class Main {
 
 
         //продавцы
-        employees.add(new Employee(1,"Томашевський Женя",32));
+        employees.add(new Employee(1,"Томашевський Женя",21));
         employees.add(new Employee(2,"Демидов Олександер",35));
         employees.add(new Employee(3,"Кравчук Олександер",31));
         //покупатели
-        customers.add(new Customer(1,"Губарьков Сергей",30));
+        customers.add(new Customer(1,"Губарьков Сергей",20));
         customers.add(new Customer(2,"Андрусенко Николай",39));
         customers.add(new Customer(3,"Корж Вячеслав",22));
-        customers.add(new Customer(4,"Луценко Сергей",38));
-        customers.add(new Customer(5,"Пидкопай Сергей",21));
+        customers.add(new Customer(4,"Луценко Сергей",28));
+        customers.add(new Customer(5,"Пидкопай Сергей",31));
         //книги
         books.add(new Book(1,"Алгебра","Дудь",350, BookGenre.ART));
         books.add(new Book(2,"От ждуна до мидла за 5 часов","Ютуб",500,BookGenre.PROGRAMMING));
@@ -29,10 +30,11 @@ public class Main {
         books.add(new Book(5,"Совершенный код","Макконев Стив",150, BookGenre.PROGRAMMING));
         books.add(new Book(6,"Кобзар","Шевченко",650, BookGenre.ART));
         books.add(new Book(7,"Чистый код","Шмит",300, BookGenre.PROGRAMMING));
+        books.add(new Book(8,"География","Коцюбиський",450,BookGenre.ART));
         //заказы
-        orders.add(new Order(1,1,1,new long[]{2,5,7,4}));
-        orders.add(new Order(3,2,2,new long[]{1,4}));
-        orders.add(new Order(2,3,1,new long[]{1,2,5,47}));
+        orders.add(new Order(1,1,1,new long[]{1,3,1,3}));
+        orders.add(new Order(3,2,2,new long[]{1,4,8}));
+        orders.add(new Order(2,3,1,new long[]{1,2,3,6,8}));
         orders.add(new Order(4,1,3,new long[]{2,3,5,7}));
 
 
@@ -59,11 +61,67 @@ public class Main {
                     )
             );
         }
+        System.out.println("_________________");
+        //
+        int age = 22;
+        String analizGendeStr = "Покупатели до %d лет выбирают %s ";
+        System.out.println(String.format(analizGendeStr,30,getMostPopularAge(age)));
+
+        String analizGendeStr2 = "Покупатели страше %d лет выбирают жанр %s";
+        System.out.println(String.format(analizGendeStr2,30,getMostPopularAgeThenAge(25)));
 
 
 
 
     }
+    //наиболее полулярные книги младше по age
+    public static BookGenre getMostPopularAge(int age){
+        ArrayList<Long> costumerId = new ArrayList<>();
+
+        for (Customer customer :customers){
+            if (customer.getAge() < age){
+                costumerId.add(customer.getId());
+            }
+        }
+        return getMostPopular(costumerId);
+
+
+    }
+    // популярные  жанры заказчиков страше возроста age
+    public static BookGenre getMostPopularAgeThenAge(int age){
+        ArrayList<Long> costumerId = new ArrayList<>();
+        for (Customer customer :customers){
+            if (customer.getAge() > age){
+                costumerId.add(customer.getId());
+            }
+        }
+        return getMostPopular(costumerId);
+
+
+    }
+
+    private static BookGenre getMostPopular(ArrayList<Long> costumerId) {
+        int countArt = 0,countPr =0 ,countPs=0;
+        for (Order order :orders){
+            if (costumerId.contains(order.getCustomerId())){
+                countArt += getCountOfSoldBooksByGenre(order,BookGenre.ART);
+                countPs += getCountOfSoldBooksByGenre(order,BookGenre.PSYCHOLOGY);
+                countPr += getCountOfSoldBooksByGenre(order,BookGenre.PROGRAMMING);
+            }
+        }
+        ArrayList<BookAdditional> result = new ArrayList<>();
+        result.add(new BookAdditional(BookGenre.PROGRAMMING,countArt));
+        result.add(new BookAdditional(BookGenre.PSYCHOLOGY,countPs));
+        result.add(new BookAdditional(BookGenre.PROGRAMMING,countPr));
+        result.sort(new Comparator<BookAdditional>() {
+            @Override
+            public int compare(BookAdditional left, BookAdditional right) {
+                return right.getCount() - left.getCount();                  //по убыванию
+            }
+        });
+        return result.get(0).getGenre();
+    }
+
     //колчество проданых книг по жанрам
     public static ArrayList<BookAdditional> getCountOfSoldBooksByGenre(){
         ArrayList<BookAdditional> result = new ArrayList<>();
